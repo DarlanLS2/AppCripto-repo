@@ -8,7 +8,11 @@ export default function Home({ navigation }) {
   const [registro, setRegistros] = useState([]);
 
   useEffect(() => {
-    fetchCripto(setRegistros);
+    async function carregarDados() {
+      const data = await fetchCripto();
+      console.log("Dados Recebidos:", data);
+      setRegistros(data);
+    }
   }, []);
 
   const handleDelete = (id) => {
