@@ -4,18 +4,16 @@ import { Alert } from 'react-native';
 export const fetchCripto = async (setRegistros) => {
   try {
     const response = await fetch(API_URL);
-    if (!response.ok) {
-      throw new Error('Erro ao buscar Criptos');
-    }
-    const data = await response.json();
-    setRegistros(data);
+    const result = await response.json();
+    return result.data;
   } catch (error) {
     console.error('Erro ao buscar Criptos:', error);
-    throw error;
+    return [];
   }
 };
 
 export const createCripto = async (CriptoData) => {
+  console.log('Resposta bruta da API>try:', CriptoData);
   try {
     const response = await fetch('https://criptos.webapptech.cloud/api/cripto', {
       method: 'POST',
@@ -44,7 +42,7 @@ export const createCripto = async (CriptoData) => {
     }
 
     if (!response.ok || !responseData) {
-      throw new Error(responseData?.message || 'Erro desconhecido na API');
+      throw new Error(responseData?.message || 'Erro desconhecido na API!');
     }
 
     return responseData;
@@ -69,7 +67,7 @@ export const deleteCripto = async (CriptoId, setRegistros) => {
         Alert.alert('Sucesso!', responseData.message);
         // Atualiza a lista localmente, removendo o Cripto excluído
         setRegistros((prevRegistros) => {
-          const novaLista = prevRegistros.filter((Cripto) => Cripto.codigo !== CriptoId);
+          const novaLista = prevRegistros.filter((Cripto) => Cripto.id != CriptoId);
           console.log('Nova lista de Criptos:', novaLista);
           return novaLista;
         });
@@ -95,9 +93,9 @@ export const deleteCripto = async (CriptoId, setRegistros) => {
   }
 };
 
-export const updateCripto = async (CriptoId, updatedData, navigation) => {
+export const updateCripto = async (cripto, updatedData, navigation) => {
   try {
-    const response = await fetch(`https://criptos.webapptech.cloud/api/cripto/${CriptoId}`, {
+    const response = await fetch(`https://criptos.webapptech.cloud/api/cripto/${cripto.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -105,22 +103,24 @@ export const updateCripto = async (CriptoId, updatedData, navigation) => {
       body: JSON.stringify(updatedData),
     });
 
-    console.log('Dados enviados:', updatedData);
+    // const textResponse = await response.text();
+    // console.log('Status:', response.status);
+    // console.log('Resposta da API:', textResponse);
 
-    if (response.status === 200) {
+    if (response.status === 200 || response.status === 204) {
       Alert.alert('Sucesso!', 'Cripto atualizada com sucesso!');
-      navigation.navigate('Home'); // Volta para a tela principal
+      navigation.navigate('Home');
     } else {
-      const textResponse = await response.text();
       let responseData;
       try {
+        const textResponse = await response.text();
         responseData = JSON.parse(textResponse);
       } catch (error) {
-        console.warn('A resposta não é um JSON válido.');
         responseData = null;
+        console.warn('Resposta não é JSON válido.');
       }
 
-      throw new Error(responseData?.message || 'Erro desconhecido ao atualizar o Cripto');
+      throw new Error(responseData?.message || 'Erro desconhecido ao atualizar a Cripto.');
     }
   } catch (error) {
     console.error('Erro ao atualizar Cripto:', error.message);

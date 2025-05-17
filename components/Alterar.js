@@ -10,7 +10,7 @@ export default function Alterar({ route, navigation }) {
   const handleUpdate = () => {
     const updatedData = {
       nomeCripto,
-      siglaCripto
+      siglaCripto,
     };
 
     Alert.alert(
@@ -20,7 +20,7 @@ export default function Alterar({ route, navigation }) {
         { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Alterar',
-          onPress: () => updateCripto(cripto.codigo, updatedData, navigation), // <-- importante
+          onPress: () => updateCripto(cripto, updatedData, navigation), // <--- Importante
         },
       ]
     );

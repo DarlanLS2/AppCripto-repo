@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Alert, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import FloatingActionButton from 'react-native-floating-action-button';
+import { FloatingAction } from 'react-native-floating-action';
 import { fetchCripto, deleteCripto } from './Api';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -10,9 +10,11 @@ export default function Home({ navigation }) {
   useEffect(() => {
     async function carregarDados() {
       const data = await fetchCripto();
-      console.log("Dados Recebidos:", data);
+      console.log('Dados recebidos:', data);
       setRegistros(data);
     }
+
+    carregarDados();
   }, []);
 
   const handleDelete = (id) => {
@@ -28,37 +30,44 @@ export default function Home({ navigation }) {
       ]
     );
   };
-
   return (
     <View style={styles.container}>
+
       <FlatList
         data={registro}
-        keyExtractor={(item) => item.codigo.toString()}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.itemContainer}>
             <Text style={styles.itemText}>
-              Cripto: {item.sigla} – Sigla: {item.nome}
+              {item.nomeCripto} - Sigla: {item.siglaCripto}
             </Text>
             <View style={styles.buttonRow}>
               <TouchableOpacity
                 style={[styles.button, styles.deleteButton]}
-                onPress={() => handleDelete(item.codigo)}
+                onPress={() => handleDelete(item.id)}
               >
                 <Icon name="trash" size={20} color="#fff" />
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.button, styles.editButton]}
-                onPress={() => navigation.navigate('Alterar', { book: item })}
+                onPress={() => navigation.navigate('Alterar', { cripto: item })}
               >
                 <Icon name="edit" size={20} color="#fff" />
               </TouchableOpacity>
             </View>
           </View>
         )}
-      />     
-      <FloatingActionButton
-        onPress={() => navigation.navigate('Cadastro')}
-        icon="plus"
+      />
+
+      <FloatingAction
+        actions={[
+          {
+            text: 'Adicionar',
+            icon: <Icon name="plus" size={20} color="#fff" />, // ou use um ícone do pacote name: 'bt_add',
+            position: 1
+          }
+        ]}
+        onPressItem={() => navigation.navigate('Cadastro')}
       />
     </View>
   );
@@ -101,5 +110,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-  
